@@ -3,14 +3,15 @@ import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 
-export default defineConfig({
-  server: {
-    port: 62708,
-    },
+export default defineConfig(({ command }) => ({
+  //server: {
+  //  port: 62708,
+  //},
+  base: command === 'build' ? '/Design-System/' : '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-})
+}))

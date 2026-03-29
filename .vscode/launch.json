@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Design System",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "preLaunchTask": "Vite Dev Server",
+      "webRoot": "${workspaceFolder}/design_system/src"
+    }
+  ]
+}
