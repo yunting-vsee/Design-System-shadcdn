@@ -28,8 +28,8 @@ import { Separator } from "@/components/ui/separator"
 // ─── lucide-react icons ───────────────────────────────────────────────────────
 import {
   CheckCircle, Info, AlertTriangle, XCircle,
-  Search, Bell, User, LayoutDashboard,
-  Calendar, MessageSquare, FlaskConical,
+  Search, Bell, User,
+  MessageSquare, FlaskConical,
   ChevronLeft, ChevronRight,
 } from "lucide-react"
 
