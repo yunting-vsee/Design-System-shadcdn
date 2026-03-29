@@ -1,0 +1,10 @@
+/* App-level overrides — old Vite default styles cleared */
+#root {
+  min-height: 100svh;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  max-width: 100%;
+  border: none;
+  display: block;
+}

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -NonInteractive -NoProfile -ExecutionPolicy Bypass -File \"D:\\\\Downloads\\\\AI Studio\\\\Design System\\\\create_ods.ps1\")",
+      "Bash(echo \"bash_done:$?\")",
+      "Read(//tmp/**)"
+    ]
+  }
+}

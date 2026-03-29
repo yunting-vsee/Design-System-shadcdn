@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(npm -v)",
+      "Bash(where node:*)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(cmd /c \"node -v\" 2>&1)",
+      "Bash(npm install:*)",
+      "Bash(echo EXIT:$?)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
