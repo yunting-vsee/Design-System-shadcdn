@@ -3,7 +3,14 @@
     "allow": [
       "Bash(powershell.exe -NonInteractive -NoProfile -ExecutionPolicy Bypass -File \"D:\\\\Downloads\\\\AI Studio\\\\Design System\\\\create_ods.ps1\")",
       "Bash(echo \"bash_done:$?\")",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(dir:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(cmd /c \"cd /d \\\\\"D:\\\\Downloads\\\\AI Studio\\\\Design System\\\\design_system\\\\\" && npx tsc --noEmit 2>&1 && echo BUILD_OK || echo BUILD_FAIL\")",
+      "Bash(cmd.exe /c \"cd /d \"\"D:\\\\Downloads\\\\AI Studio\\\\Design System\\\\design_system\"\" && npx tsc --noEmit\")",
+      "Bash(echo \"done: $?\")"
     ]
   }
 }

@@ -31,6 +31,7 @@ import {
   Search, Bell, User,
   MessageSquare, FlaskConical,
   ChevronLeft, ChevronRight,
+  FileText, Send, ArrowRight,
 } from "lucide-react"
 
 // ─── Helper components ────────────────────────────────────────────────────────
@@ -156,6 +157,15 @@ export default function App() {
   const [showConsultations, setShowConsultations] = useState(true)
   const [myPatients, setMyPatients] = useState(false)
 
+  // Form.io demo state
+  const [formioFirstName, setFormioFirstName] = useState("")
+  const [formioLastName, setFormioLastName] = useState("")
+  const [formioDob, setFormioDob] = useState("")
+  const [formioInsurance, setFormioInsurance] = useState("")
+  const [formioReason, setFormioReason] = useState("")
+  const [formioHipaa, setFormioHipaa] = useState(false)
+  const [formioSubmitted, setFormioSubmitted] = useState(false)
+
   return (
     <div className="flex min-h-screen bg-background font-sans">
 
@@ -190,6 +200,7 @@ export default function App() {
           <div className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground px-2 mb-1">Patterns</div>
           <NavLink href="#emr">EMR Patterns</NavLink>
           <NavLink href="#theming">White-Label</NavLink>
+          <NavLink href="#formio">Form.io Integration</NavLink>
         </div>
 
         <div className="px-3">
@@ -983,6 +994,427 @@ export default function App() {
               </pre>
             </CardContent>
           </Card>
+        </section>
+
+        {/* ── FORM.IO INTEGRATION ── */}
+        <section className="px-16 py-16 border-b border-border max-w-5xl" id="formio">
+          <SectionLabel>Patterns</SectionLabel>
+          <SectionTitle>Form.io + shadcn/ui</SectionTitle>
+          <SectionDesc>
+            Form.io is a headless form platform — forms are defined as JSON schemas on a server and rendered client-side
+            via <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">@formio/react</code>.
+            Registering shadcn/ui components as Form.io <em>custom components</em> gives you runtime-driven, dynamic
+            forms that look and feel like the rest of your design system.
+          </SectionDesc>
+
+          {/* ── Architecture ── */}
+          <Subsection>
+            <SubTitle>How it works</SubTitle>
+            <div className="flex items-stretch gap-0 mb-6 rounded-xl overflow-hidden border border-border">
+              {[
+                { icon: <FileText className="h-6 w-6" />, title: "Form.io Builder", desc: "Drag-and-drop form builder or JSON editor hosted on form.io or self-hosted" },
+                { icon: <ArrowRight className="h-5 w-5 text-muted-foreground self-center" />, title: "", desc: "" },
+                { icon: <span className="font-mono text-sm font-bold">JSON</span>, title: "Form Schema", desc: "Form definition fetched at runtime — no redeploy needed to change a form" },
+                { icon: <ArrowRight className="h-5 w-5 text-muted-foreground self-center" />, title: "", desc: "" },
+                { icon: <span className="font-mono text-xs font-bold leading-tight text-center">@formio/<br/>react</span>, title: "<Form>", desc: "Renders schema, handles validation, submissions, and multi-step logic" },
+                { icon: <ArrowRight className="h-5 w-5 text-muted-foreground self-center" />, title: "", desc: "" },
+                { icon: <span className="text-primary font-bold text-xs leading-tight text-center">shadcn/<br/>ui</span>, title: "Custom Components", desc: "shadcn Input, Checkbox, Select etc. registered as Form.io custom component overrides" },
+              ].map(({ icon, title, desc }, i) => (
+                title === "" ? (
+                  <div key={i} className="flex items-center px-2 bg-muted">{icon}</div>
+                ) : (
+                  <div key={i} className="flex-1 bg-card p-5 flex flex-col gap-2 border-l border-border first:border-l-0">
+                    <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-primary shrink-0">
+                      {icon}
+                    </div>
+                    <div className="text-sm font-bold">{title}</div>
+                    <div className="text-xs text-muted-foreground leading-relaxed">{desc}</div>
+                  </div>
+                )
+              ))}
+            </div>
+          </Subsection>
+
+          {/* ── JSON Schema ── */}
+          <Subsection>
+            <SubTitle>Form.io JSON Schema</SubTitle>
+            <p className="text-sm text-muted-foreground mb-4">
+              The server returns a JSON schema like this. The <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">type</code> field maps to the registered custom component.
+            </p>
+            <Card>
+              <CardContent className="pt-6">
+                <pre className="bg-gray-950 text-gray-200 rounded-lg p-5 text-xs font-mono leading-relaxed overflow-x-auto">
+{`// Returned by GET /form/patient-intake (Form.io API)
+{
+  "title": "Patient Intake Form",
+  "components": [
+    {
+      "type":        "shadcnTextfield",   // ← custom component key
+      "key":         "firstName",
+      "label":       "First Name",
+      "placeholder": "Jane",
+      "validate":    { "required": true }
+    },
+    {
+      "type":        "shadcnTextfield",
+      "key":         "lastName",
+      "label":       "Last Name",
+      "placeholder": "Doe",
+      "validate":    { "required": true }
+    },
+    {
+      "type":        "shadcnTextfield",
+      "inputType":   "date",
+      "key":         "dob",
+      "label":       "Date of Birth",
+      "validate":    { "required": true }
+    },
+    {
+      "type":        "shadcnSelect",     // ← custom Select
+      "key":         "insurance",
+      "label":       "Insurance Provider",
+      "data": {
+        "values": [
+          { "label": "Aetna",    "value": "aetna"    },
+          { "label": "BlueCross","value": "bluecross" },
+          { "label": "Cigna",    "value": "cigna"    },
+          { "label": "UnitedHealthcare", "value": "uhc" }
+        ]
+      }
+    },
+    {
+      "type":        "shadcnTextarea",   // ← custom Textarea
+      "key":         "reasonForVisit",
+      "label":       "Reason for Visit",
+      "placeholder": "Describe your symptoms...",
+      "rows":        3
+    },
+    {
+      "type":        "shadcnCheckbox",   // ← custom Checkbox
+      "key":         "hipaaConsent",
+      "label":       "I have read and agree to the HIPAA Privacy Notice",
+      "validate":    { "required": true }
+    },
+    {
+      "type":        "shadcnButton",
+      "action":      "submit",
+      "label":       "Submit Intake Form"
+    }
+  ]
+}`}
+                </pre>
+              </CardContent>
+            </Card>
+          </Subsection>
+
+          {/* ── Custom Component Bridge ── */}
+          <Subsection>
+            <SubTitle>Custom Component Registration</SubTitle>
+            <p className="text-sm text-muted-foreground mb-4">
+              Each Form.io component type is mapped to a React component. The <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">component</code> object carries the schema properties; <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">onChange</code> updates the submission data.
+            </p>
+            <Card>
+              <CardContent className="pt-6">
+                <pre className="bg-gray-950 text-gray-200 rounded-lg p-5 text-xs font-mono leading-relaxed overflow-x-auto">
+{`// src/formio/shadcn-components.tsx
+import { Input }    from "@/components/ui/input"
+import { Label }    from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button }   from "@/components/ui/button"
+import { cn }       from "@/lib/utils"
+
+// shadcnTextfield → shadcn <Input>
+export function ShadcnTextfield({ component, value, onChange, error }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={component.key}>
+        {component.label}
+        {component.validate?.required && (
+          <span className="text-destructive ml-0.5">*</span>
+        )}
+      </Label>
+      <Input
+        id={component.key}
+        type={component.inputType ?? "text"}
+        placeholder={component.placeholder}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={!!error}
+        aria-describedby={error ? \`\${component.key}-error\` : undefined}
+        className={cn(error && "border-destructive focus-visible:ring-destructive")}
+      />
+      {error && (
+        <p id={\`\${component.key}-error\`} className="text-xs text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// shadcnCheckbox → shadcn <Checkbox>
+export function ShadcnCheckbox({ component, value, onChange, error }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={component.key}
+          checked={!!value}
+          onCheckedChange={(checked) => onChange(!!checked)}
+          aria-invalid={!!error}
+        />
+        <Label htmlFor={component.key} className="font-normal leading-snug">
+          {component.label}
+        </Label>
+      </div>
+      {error && (
+        <p className="text-xs text-destructive" role="alert">{error}</p>
+      )}
+    </div>
+  )
+}
+
+// Register all custom components
+export const customComponents = {
+  shadcnTextfield: ShadcnTextfield,
+  shadcnTextarea:  ShadcnTextarea,
+  shadcnSelect:    ShadcnSelect,
+  shadcnCheckbox:  ShadcnCheckbox,
+  shadcnButton:    ShadcnButton,
+}`}
+                </pre>
+              </CardContent>
+            </Card>
+          </Subsection>
+
+          {/* ── Setup code ── */}
+          <Subsection>
+            <SubTitle>Wiring it Together</SubTitle>
+            <Card>
+              <CardContent className="pt-6">
+                <pre className="bg-gray-950 text-gray-200 rounded-lg p-5 text-xs font-mono leading-relaxed overflow-x-auto">
+{`// src/pages/PatientIntake.tsx
+import { Form } from "@formio/react"
+import { customComponents } from "@/formio/shadcn-components"
+
+export function PatientIntakePage() {
+  const handleSubmit = (submission: { data: Record<string, unknown> }) => {
+    console.log("Form.io submission →", submission.data)
+    // POST to your backend or Form.io submission endpoint
+  }
+
+  return (
+    <Form
+      // Fetch schema from Form.io server by form path
+      src="https://your-project.form.io/patient-intake"
+
+      // Inject shadcn/ui as the renderer for each component type
+      options={{ components: customComponents }}
+
+      onSubmit={handleSubmit}
+    />
+  )
+}`}
+                </pre>
+              </CardContent>
+            </Card>
+          </Subsection>
+
+          {/* ── Live Demo ── */}
+          <Subsection>
+            <SubTitle>Live Preview — Patient Intake Form</SubTitle>
+            <p className="text-sm text-muted-foreground mb-4">
+              This is what the form above renders using the shadcn custom components. All validation, layout, and
+              field logic come from the JSON schema; the shadcn components supply only styling and accessibility.
+            </p>
+            <div className="grid grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <CardTitle>Patient Intake Form</CardTitle>
+                  </div>
+                  <CardDescription>Rendered by <code className="text-xs">@formio/react</code> · shadcn/ui custom components</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {formioSubmitted ? (
+                    <div className="flex flex-col items-center gap-3 py-8 text-center">
+                      <CheckCircle className="h-12 w-12 text-primary" />
+                      <p className="text-base font-semibold">Intake form submitted!</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formioFirstName} {formioLastName} · {formioInsurance || "No insurance"}
+                      </p>
+                      <Button variant="outline" size="sm" onClick={() => {
+                        setFormioSubmitted(false)
+                        setFormioFirstName("")
+                        setFormioLastName("")
+                        setFormioDob("")
+                        setFormioInsurance("")
+                        setFormioReason("")
+                        setFormioHipaa(false)
+                      }}>
+                        Reset form
+                      </Button>
+                    </div>
+                  ) : (
+                    <form
+                      className="flex flex-col gap-4"
+                      onSubmit={(e) => { e.preventDefault(); setFormioSubmitted(true) }}
+                    >
+                      {/* Row: First / Last name */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1.5">
+                          <Label htmlFor="fi-first">First Name <span className="text-destructive">*</span></Label>
+                          <Input
+                            id="fi-first"
+                            placeholder="Jane"
+                            value={formioFirstName}
+                            onChange={(e) => setFormioFirstName(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <Label htmlFor="fi-last">Last Name <span className="text-destructive">*</span></Label>
+                          <Input
+                            id="fi-last"
+                            placeholder="Doe"
+                            value={formioLastName}
+                            onChange={(e) => setFormioLastName(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {/* Date of Birth */}
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="fi-dob">Date of Birth <span className="text-destructive">*</span></Label>
+                        <Input
+                          id="fi-dob"
+                          type="date"
+                          value={formioDob}
+                          onChange={(e) => setFormioDob(e.target.value)}
+                          required
+                        />
+                      </div>
+
+                      {/* Insurance — native select styled to match shadcn */}
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="fi-insurance">Insurance Provider</Label>
+                        <select
+                          id="fi-insurance"
+                          value={formioInsurance}
+                          onChange={(e) => setFormioInsurance(e.target.value)}
+                          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="">Select provider…</option>
+                          <option value="aetna">Aetna</option>
+                          <option value="bluecross">BlueCross</option>
+                          <option value="cigna">Cigna</option>
+                          <option value="uhc">UnitedHealthcare</option>
+                        </select>
+                      </div>
+
+                      {/* Reason for visit */}
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="fi-reason">Reason for Visit</Label>
+                        <Textarea
+                          id="fi-reason"
+                          placeholder="Describe your symptoms or reason for visit…"
+                          rows={3}
+                          value={formioReason}
+                          onChange={(e) => setFormioReason(e.target.value)}
+                        />
+                      </div>
+
+                      {/* HIPAA Consent */}
+                      <div className="flex items-start gap-2 rounded-md border border-border bg-muted/50 p-3">
+                        <Checkbox
+                          id="fi-hipaa"
+                          checked={formioHipaa}
+                          onCheckedChange={(v) => setFormioHipaa(!!v)}
+                          className="mt-0.5"
+                        />
+                        <Label htmlFor="fi-hipaa" className="font-normal text-sm leading-snug cursor-pointer">
+                          I have read and agree to the HIPAA Privacy Notice <span className="text-destructive">*</span>
+                        </Label>
+                      </div>
+
+                      <Button type="submit" disabled={!formioHipaa} className="w-full">
+                        <Send className="h-4 w-4" />
+                        Submit Intake Form
+                      </Button>
+                    </form>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Key points */}
+              <div className="flex flex-col gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">What Form.io handles</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+                      {[
+                        "Schema fetch & caching",
+                        "Field-level validation rules (required, min/max, regex)",
+                        "Conditional visibility logic",
+                        "Multi-step wizard / page navigation",
+                        "Submission to Form.io or custom endpoint",
+                        "Offline drafts & resume",
+                      ].map(item => (
+                        <li key={item} className="flex items-center gap-2">
+                          <CheckCircle className="h-3.5 w-3.5 text-primary shrink-0" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">What shadcn/ui handles</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+                      {[
+                        "Visual styling & brand tokens",
+                        "Keyboard navigation & focus rings",
+                        "ARIA labels, roles, error associations",
+                        "Radix UI accessibility primitives",
+                        "Consistent hover / focus / disabled states",
+                        "Design system token inheritance",
+                      ].map(item => (
+                        <li key={item} className="flex items-center gap-2">
+                          <CheckCircle className="h-3.5 w-3.5 text-primary shrink-0" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </Subsection>
+
+          {/* ── Install ── */}
+          <Subsection>
+            <SubTitle>Install</SubTitle>
+            <Card>
+              <CardContent className="pt-6">
+                <pre className="bg-gray-950 text-gray-200 rounded-lg p-5 text-xs font-mono leading-relaxed overflow-x-auto">
+{`# Install Form.io React renderer + core library
+npm install @formio/react formiojs
+
+# shadcn/ui components used in the bridge
+npx shadcn@latest add input label textarea checkbox button select`}
+                </pre>
+              </CardContent>
+            </Card>
+          </Subsection>
         </section>
 
         {/* ── TOKENS ── */}
