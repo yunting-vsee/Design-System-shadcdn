@@ -7,7 +7,7 @@ export default defineConfig(({ command }) => ({
   //server: {
   //  port: 62708,
   //},
-  base: command === 'build' ? '/Design-System/' : '/',
+  base: command === 'build' ? '/Design-System-shadcdn/' : '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
